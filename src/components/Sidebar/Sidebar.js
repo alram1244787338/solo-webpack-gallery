@@ -1,8 +1,15 @@
 import './Sidebar.scss';
+import { tags } from '@/data/images';
+import { useStore, useBus, getStats } from '@/utils/state';
 
 class Sidebar {
   constructor() {
     this.element = null;
+    this.tagListEl = null;
+    this.statsImagesEl = null;
+    this.statsTagsEl = null;
+    this.store = useStore();
+    this.bus = useBus();
   }
 
   render() {
@@ -13,14 +20,7 @@ class Sidebar {
       <div class="sidebar-inner">
         <div class="sidebar-section">
           <h3 class="section-title">标签筛选</h3>
-          <div class="tag-list">
-            <span class="tag tag--active">全部</span>
-            <span class="tag">风景</span>
-            <span class="tag">人物</span>
-            <span class="tag">动物</span>
-            <span class="tag">建筑</span>
-            <span class="tag">美食</span>
-          </div>
+          <div class="tag-list"></div>
         </div>
 
         <div class="sidebar-section">
@@ -29,10 +29,6 @@ class Sidebar {
             <label class="sort-option">
               <input type="radio" name="sort" value="newest" checked>
               <span>最新上传</span>
-            </label>
-            <label class="sort-option">
-              <input type="radio" name="sort" value="popular">
-              <span>最受欢迎</span>
             </label>
             <label class="sort-option">
               <input type="radio" name="sort" value="random">
@@ -45,11 +41,11 @@ class Sidebar {
           <h3 class="section-title">统计信息</h3>
           <div class="stats">
             <div class="stat-item">
-              <span class="stat-value">0</span>
+              <span class="stat-value" id="statImages">0</span>
               <span class="stat-label">图片总数</span>
             </div>
             <div class="stat-item">
-              <span class="stat-value">0</span>
+              <span class="stat-value" id="statTags">0</span>
               <span class="stat-label">标签数量</span>
             </div>
           </div>
@@ -57,27 +53,78 @@ class Sidebar {
       </div>
     `;
 
+    this.tagListEl = this.element.querySelector('.tag-list');
+    this.statsImagesEl = this.element.querySelector('#statImages');
+    this.statsTagsEl = this.element.querySelector('#statTags');
+
+    this.renderTags();
+
     return this.element;
   }
 
   init() {
+    this.subscribeState();
+    this.updateStats();
     this.bindEvents();
   }
 
-  bindEvents() {
-    const tags = this.element.querySelectorAll('.tag');
+  renderTags() {
+    const currentTag = this.store.get('filterTag');
+    this.tagListEl.innerHTML = '';
+
     tags.forEach(tag => {
-      tag.addEventListener('click', () => {
-        tags.forEach(t => t.classList.remove('tag--active'));
-        tag.classList.add('tag--active');
-        console.log('选中标签:', tag.textContent);
-      });
+      const tagEl = document.createElement('span');
+      tagEl.className = 'tag';
+      tagEl.textContent = tag;
+      tagEl.dataset.tag = tag;
+
+      if (tag === currentTag) {
+        tagEl.classList.add('tag--active');
+      }
+
+      this.tagListEl.appendChild(tagEl);
+    });
+  }
+
+  subscribeState() {
+    this.bus.on('state:images', () => this.updateStats());
+    this.bus.on('state:filterTag', () => this.highlightActiveTag());
+  }
+
+  updateStats() {
+    const { totalImages, totalTags } = getStats();
+    this.statsImagesEl.textContent = totalImages;
+    this.statsTagsEl.textContent = totalTags;
+  }
+
+  highlightActiveTag() {
+    const currentTag = this.store.get('filterTag');
+    const tagEls = this.tagListEl.querySelectorAll('.tag');
+    tagEls.forEach(tagEl => {
+      if (tagEl.dataset.tag === currentTag) {
+        tagEl.classList.add('tag--active');
+      } else {
+        tagEl.classList.remove('tag--active');
+      }
+    });
+  }
+
+  bindEvents() {
+    this.tagListEl.addEventListener('click', (e) => {
+      const tagEl = e.target.closest('.tag');
+      if (tagEl) {
+        const tag = tagEl.dataset.tag;
+        if (tag && tag !== this.store.get('filterTag')) {
+          this.store.set('filterTag', tag);
+        }
+      }
     });
 
     const sortRadios = this.element.querySelectorAll('input[name="sort"]');
     sortRadios.forEach(radio => {
       radio.addEventListener('change', (e) => {
-        console.log('排序方式:', e.target.value);
+        const sortBy = e.target.value;
+        this.store.set('sortBy', sortBy);
       });
     });
   }

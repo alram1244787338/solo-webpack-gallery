@@ -2,6 +2,8 @@ import '@/styles/global.scss';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import Gallery from '@/components/Gallery';
+import { useStore, useBus } from '@/utils/state';
+import mockImages from '@/data/images';
 
 class App {
   constructor() {
@@ -9,12 +11,22 @@ class App {
     this.navbar = new Navbar();
     this.sidebar = new Sidebar();
     this.gallery = new Gallery();
+    this.store = useStore();
+    this.bus = useBus();
   }
 
   init() {
+    this.initStore();
     this.render();
-    this.bindEvents();
+    this.initComponents();
+    this.bindGlobalEvents();
     console.log('图片画廊应用已启动');
+  }
+
+  initStore() {
+    this.store.set('images', mockImages);
+    this.store.set('filterTag', '全部');
+    this.store.set('sortBy', 'newest');
   }
 
   render() {
@@ -38,13 +50,18 @@ class App {
     layout.appendChild(mainWrapper);
 
     this.app.appendChild(layout);
+  }
 
+  initComponents() {
     this.navbar.init();
     this.sidebar.init();
     this.gallery.init();
   }
 
-  bindEvents() {
+  bindGlobalEvents() {
+    this.bus.on('image:click', (image) => {
+      console.log('点击图片:', image);
+    });
   }
 }
 
