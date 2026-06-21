@@ -2,6 +2,7 @@
   "name": "work",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "dependencies": {
     "accepts": "^1.3.8",
@@ -289,9 +290,10 @@
     "babel-loader": "^10.1.1"
   },
   "scripts": {
-    "dev": "webpack serve --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
-    "start": "webpack serve --config webpack.dev.js"
+    "dev": "webpack serve --config webpack.dev.cjs",
+    "build": "webpack --config webpack.prod.cjs",
+    "start": "webpack serve --config webpack.dev.cjs",
+    "test": "node test/run.js"
   },
   "repository": {
     "type": "git",

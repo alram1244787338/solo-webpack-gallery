@@ -67,7 +67,7 @@ export function useBus() {
   return eventBus;
 }
 
-function cloneImages(arr) {
+export function cloneImages(arr) {
   return arr.map(img => ({ ...img, tags: [...img.tags] }));
 }
 
