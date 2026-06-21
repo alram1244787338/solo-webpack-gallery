@@ -1,0 +1,73 @@
+@import '@/styles/variables';
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: $navbar-height;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  z-index: 100;
+
+  &-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 24px;
+    max-width: 100%;
+  }
+
+  &-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .logo {
+      font-size: 24px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: $border-radius;
+  font-size: 18px;
+  transition: $transition;
+
+  &:hover {
+    background-color: $bg-color;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .navbar-inner {
+    padding: 0 16px;
+  }
+
+  .navbar-brand .title {
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,32 @@
+@import 'variables';
+@import 'reset';
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding-top: $navbar-height;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: $content-padding;
+}
+
+@media (max-width: $breakpoint-md) {
+  .main-wrapper {
+    flex-direction: column;
+  }
+
+  .content-area {
+    padding: 16px;
+  }
+}
