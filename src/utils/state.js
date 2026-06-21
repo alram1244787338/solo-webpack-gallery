@@ -56,6 +56,7 @@ const store = new State({
   images: [],
   filterTag: '全部',
   sortBy: 'newest',
+  searchKeyword: '',
 });
 
 export function useStore() {
@@ -66,38 +67,51 @@ export function useBus() {
   return eventBus;
 }
 
+function cloneImages(arr) {
+  return arr.map(img => ({ ...img, tags: [...img.tags] }));
+}
+
 export function getFilteredImages() {
   const images = store.get('images') || [];
   const filterTag = store.get('filterTag');
   const sortBy = store.get('sortBy');
+  const searchKeyword = (store.get('searchKeyword') || '').trim().toLowerCase();
 
-  let result = [...images];
+  let result = cloneImages(images);
 
   if (filterTag !== '全部') {
     result = result.filter(img => img.tags.includes(filterTag));
   }
 
+  if (searchKeyword) {
+    result = result.filter(img =>
+      img.title.toLowerCase().includes(searchKeyword)
+    );
+  }
+
+  const sorted = [...result];
+
   if (sortBy === 'newest') {
-    result.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    sorted.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
   } else if (sortBy === 'random') {
-    for (let i = result.length - 1; i > 0; i--) {
+    for (let i = sorted.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
+      [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
     }
   }
 
-  return result;
+  return sorted;
 }
 
 export function getStats() {
   const images = store.get('images') || [];
-  const tagsSet = new Set();
+  let totalTagOccurrences = 0;
   images.forEach(img => {
-    img.tags.forEach(tag => tagsSet.add(tag));
+    totalTagOccurrences += img.tags.length;
   });
 
   return {
     totalImages: images.length,
-    totalTags: tagsSet.size,
+    totalTags: totalTagOccurrences,
   };
 }

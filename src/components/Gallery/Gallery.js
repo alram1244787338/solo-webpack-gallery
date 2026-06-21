@@ -41,13 +41,26 @@ class Gallery {
     this.bus.on('state:filterTag', () => this.renderImages());
     this.bus.on('state:sortBy', () => this.renderImages());
     this.bus.on('state:images', () => this.renderImages());
+    this.bus.on('state:searchKeyword', () => this.renderImages());
+  }
+
+  getTitle() {
+    const filterTag = this.store.get('filterTag');
+    const searchKeyword = (this.store.get('searchKeyword') || '').trim();
+    let title;
+    if (searchKeyword) {
+      title = `搜索：${searchKeyword}`;
+    } else if (filterTag === '全部') {
+      title = '全部图片';
+    } else {
+      title = `${filterTag} · 图片`;
+    }
+    return title;
   }
 
   renderImages() {
-    const filterTag = this.store.get('filterTag');
     const images = getFilteredImages();
-
-    this.titleEl.textContent = filterTag === '全部' ? '全部图片' : `${filterTag} · 图片`;
+    this.titleEl.textContent = this.getTitle();
     this.countEl.textContent = `共 ${images.length} 张图片`;
 
     if (images.length === 0) {
@@ -63,11 +76,14 @@ class Gallery {
   }
 
   renderEmpty() {
+    const searchKeyword = (this.store.get('searchKeyword') || '').trim();
+    const isSearch = !!searchKeyword;
+
     this.gridEl.innerHTML = `
       <div class="gallery-empty">
         <div class="empty-icon">🖼️</div>
-        <p class="empty-text">暂无图片</p>
-        <p class="empty-hint">该分类下还没有图片</p>
+        <p class="empty-text">${isSearch ? '没有匹配的图片' : '暂无图片'}</p>
+        <p class="empty-hint">${isSearch ? '试试其他关键词' : '该分类下还没有图片'}</p>
       </div>
     `;
   }
